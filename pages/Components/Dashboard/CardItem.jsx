@@ -29,7 +29,7 @@ const CardItem = (props) => {
   const handleOnClick = () => {
     console.log("heloooo");
     // Use router.push to navigate to the desired page
-    router.push("/Components/cart"); // Replace '/another-page' with the actual URL you want to navigate to
+    router.push("/Components/cart/ShoppingCart"); // Replace '/another-page' with the actual URL you want to navigate to
   };
   return (
     <Item

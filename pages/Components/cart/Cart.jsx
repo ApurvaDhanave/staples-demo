@@ -1,26 +1,32 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { add } from "@/Redux/CartSlice";
 import "../../../app/globals.css";
+import { useCart } from "../../../context/CartContext";
 
 const Cart = () => {
   const [products, setproducts] = useState([]);
-  const dispatch = useDispatch();
 
   const getproducts = async () => {
     const res = await fetch("https://fakestoreapi.com/products");
     const data = await res.json();
     setproducts(data);
   };
+  const { state, dispatch } = useCart();
 
-  const handleadd = (product) => {
-    dispatch(add(product));
+  // Example function to add an item to the cart
+  const addToCart = (item) => {
+    dispatch({ type: "ADD_TO_CART", payload: item });
+  };
+
+  // Example function to remove an item from the cart
+  const removeFromCart = (item) => {
+    dispatch({ type: "REMOVE_FROM_CART", payload: item });
   };
 
   useEffect(() => {
     getproducts();
   }, []);
+
   return (
     <div className="productsWrapper">
       {products.map((product) => (
@@ -34,5 +40,4 @@ const Cart = () => {
     </div>
   );
 };
-
 export default Cart;

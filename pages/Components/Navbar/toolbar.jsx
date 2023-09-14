@@ -1,21 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import { styled } from "@mui/system";
-import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
 import logo from "../logo.png";
 import Image from "next/image";
-import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import TextField from "@mui/material/TextField";
 import SearchIcon from "@mui/icons-material/Search";
 import { useSession, signIn, signOut } from "next-auth/react";
+import { NavbarData } from "../../../Data/NavbarData";
+import Box from "@mui/material/Box";
+import CartDrawer from "./drawer";
 
 function Navbar() {
   const { data: session } = useSession();
-  console.log(session);
+  const [isDrawerOpen, setDrawerOpen] = useState(false);
   const StyledAppBar = styled(AppBar)`
     background-color: #c00;
     width: 100%;
@@ -23,86 +22,87 @@ function Navbar() {
   const [anchorPrimaryMenu, setAnchorPrimaryMenu] = useState(null);
   const [anchorSecondaryMenu, setAnchorSecondaryMenu] = useState(null);
   const [anchorSignInMenu, setAnchorSignInMenu] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
 
-  const handlePrimaryMenuOpen = (event) => {
-    setAnchorPrimaryMenu(event.currentTarget);
-  };
-
-  const handleSecondaryMenuOpen = (event) => {
-    setAnchorSecondaryMenu(event.currentTarget);
-  };
-  const handleSignInMenuOpen = (event) => {
-    setAnchorSignInMenu(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorPrimaryMenu(null);
-    setAnchorSecondaryMenu(null);
-    setAnchorSignInMenu(null);
+  const handleCartClick = () => {
+    setDrawerOpen(false);
   };
 
   return (
     <StyledAppBar position="static">
       <Toolbar>
         <Image src={logo}></Image>
-
-        <MenuItem onClick={handleMenuClose}>Shop</MenuItem>
-        <MenuItem onClick={handleMenuClose}>Deals</MenuItem>
-        <MenuItem onClick={handleMenuClose}>Services</MenuItem>
-
-        <TextField
-          label="Search"
-          variant="outlined"
-          size="small"
-
-          // You can add more props here as needed
-        />
-        <IconButton
-        // onClick={handleSearch}
-        >
-          <SearchIcon />
-        </IconButton>
-
-        <IconButton
-          size="large"
-          edge="end"
-          color="inherit"
-          aria-label="menu"
-          onClick={handleSecondaryMenuOpen}
-        >
-          <MenuIcon />
-        </IconButton>
-        {session ? (
-          <MenuItem
-            size="large"
-            edge="end"
-            color="inherit"
-            aria-label="menu"
-            onClick={() => signOut()}
-          >
-            <PersonOutlineIcon />
-            {`Welcome, ${session?.user?.name}`}
-          </MenuItem>
-        ) : (
-          <MenuItem
-            size="large"
-            edge="end"
-            color="inherit"
-            aria-label="menu"
-            onClick={() => signIn("google")}
-          >
-            <PersonOutlineIcon /> Sign In
-          </MenuItem>
-        )}
-        <Menu
-          anchorEl={anchorSecondaryMenu}
-          open={Boolean(anchorSecondaryMenu)}
-          onClose={handleMenuClose}
-        >
-          <MenuItem onClick={handleMenuClose}>Services</MenuItem>
-          <MenuItem onClick={handleMenuClose}>Contact</MenuItem>
-        </Menu>
+        {NavbarData.length > 0 &&
+          NavbarData.map((e) => {
+            if (e.moduleName === "Search") {
+              return (
+                <TextField
+                  variant="outlined"
+                  edge="start"
+                  placeholder="Search"
+                  sx={{
+                    backgroundColor: "white",
+                    flex: "1",
+                    width: "200px",
+                    height: "44px",
+                    marginRight: "10px",
+                    borderRadius: "11px",
+                    paddingLeft: "10px",
+                    paddingRight: "30px", // Increased paddingRight to make space for the icon
+                    border: "none",
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      border: "none",
+                    },
+                    "& .MuiOutlinedInput-input": {
+                      height: "13px",
+                    },
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          position: "absolute",
+                          right: "5px", // Adjust the right position as needed
+                          top: "0",
+                          bottom: "0",
+                          color: "#c00", // Set the icon color to #c00
+                        }}
+                      >
+                        <SearchIcon />
+                      </Box>
+                    ),
+                  }}
+                />
+              );
+            } else if (e.moduleName === "Cart") {
+              return (
+                <MenuItem
+                  onClick={() => {
+                    setDrawerOpen(true);
+                  }}
+                >
+                  {e.icon ? <e.icon /> : ""}
+                  <span> </span>
+                  {e.showModuleName ? e.moduleName : ""}
+                </MenuItem>
+              );
+            } else {
+              return (
+                <MenuItem>
+                  {e.icon ? <e.icon /> : ""}
+                  <span> </span>
+                  {e.showModuleName ? e.moduleName : ""}
+                </MenuItem>
+              );
+            }
+          })}
       </Toolbar>
+      {isDrawerOpen && (
+        <CartDrawer isOpen={isDrawerOpen} onClose={handleCartClick} />
+      )}
     </StyledAppBar>
   );
 }
